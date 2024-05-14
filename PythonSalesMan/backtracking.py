@@ -1,12 +1,21 @@
 import graph_lib as gl
+import graph
 import math
 import sys
 import queue
 import dijkstra
 import copy
 
+# ============================= BACKTRACKING PUR =============================
 
-def next(current_v: gl.Vertex, current_e: gl.Edge, visits: list, g: gl.Graph, final: gl.Vertex):
+
+def next(
+    current_v: gl.Vertex,
+    current_e: gl.Edge,
+    visits: list,
+    g: gl.Graph,
+    final: gl.Vertex,
+):
 
     global path, best_path
 
@@ -52,7 +61,6 @@ def backtrack_rec(g: gl.Graph, visits: list, current_v: gl.Vertex, final: gl.Ver
             for current_e in sorted(current_v.Edges, key=lambda x: x.Length)
         ]
 
-# ============================= BACKTRACKING PUR =============================
 
 def SalesmanTrackBacktracking(g: gl.Graph, visits: list):
 
@@ -69,7 +77,7 @@ def SalesmanTrackBacktracking(g: gl.Graph, visits: list):
 
     backtrack_rec(g, restants, primer, ultim)
 
-    result = gl.Track(g)
+    result = graph.Track(g)
     result.Edges = best_path[1]
     return result
 
@@ -77,5 +85,44 @@ def SalesmanTrackBacktracking(g: gl.Graph, visits: list):
 # ============================ BACKTRACKING GREEDY ============================
 
 
+def floyd(g: gl.Graph):
+    distances = {}
+    paths = {}
+    for vertex in g.Vertices:
+        dists_v, paths_v = dijkstra.Dijkstra(g, vertex)
+        distances[vertex.Name] = dists_v
+        paths[vertex.Name] = paths_v
+    return distances, paths
+
+def build_track(g: gl.Graph, path: list, best_paths: dict):
+    track = graph.Track(g)
+    
+    for i in range(0, len(path) - 1): # tots menys ultim
+        start = path[i].Name
+        end = path[i + 1].Name
+        for e in best_paths[start][end]:
+            track.AddLast(e)
+    
+    return track
+
 def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
-    raise NotImplementedError("Funció no implementada")
+    best_distances, best_paths_dict = floyd(g)
+    best_path = []
+    best_distance = math.inf
+
+    def visit(path, total_distance):
+        nonlocal best_path, best_distance
+        if len(path) == len(visits.Vertices):
+            if total_distance < best_distance:
+                best_distance = total_distance
+                best_path = path
+        else:
+            for vertex in visits.Vertices:
+                if vertex not in path:
+                    new_distance = total_distance + best_distances[path[-1].Name][vertex.Name]
+                    visit(path + [vertex], new_distance)
+
+    visit([visits.Vertices[0]], 0)
+    
+    track = build_track(g, best_path, best_paths_dict)
+    return track
