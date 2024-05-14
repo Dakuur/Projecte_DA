@@ -94,16 +94,18 @@ def floyd(g: gl.Graph, visits: gl.Visits):
         paths[vertex.Name] = paths_v
     return distances, paths
 
+
 def build_track(g: gl.Graph, path: list, best_paths: dict):
     track = graph.Track(g)
-    
-    for i in range(0, len(path) - 1): # tots menys ultim
+
+    for i in range(0, len(path) - 1):  # tots menys ultim
         start = path[i].Name
         end = path[i + 1].Name
         for e in best_paths[start][end]:
             track.AddLast(e)
-    
+
     return track
+
 
 def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
     best_distances, best_paths_dict = floyd(g, visits)
@@ -119,12 +121,14 @@ def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
         else:
             for vertex in visits.Vertices:
                 if vertex not in path:
-                    new_distance = total_distance + best_distances[path[-1].Name][vertex.Name]
+                    new_distance = (
+                        total_distance + best_distances[path[-1].Name][vertex.Name]
+                    )
                     visit(path + [vertex], new_distance)
 
     start = visits.Vertices[0]
     end = visits.Vertices[-1]
     visit([start], 0)
-    
+
     track = build_track(g, best_path, best_paths_dict)
     return track
