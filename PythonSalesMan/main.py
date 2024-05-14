@@ -48,10 +48,10 @@ g.DisplayDistances()                					# Visualitza el graf i les distancies
 """
 
 g=graph.Graph()                     					# crear un graf
-g.Load("TestSalesMan/GreedyNoOptimo.GR")  				# llegir el graf
+g.Load("TestSalesMan/Graf50_200_7C.GR")  				# llegir el graf
 g.SetDistancesToEdgeLength()        					# Posar les longituts de les arestes a la distancia entre vertexs
 vis=graph.Visits(g);									# Crear visites
-vis.Load("TestSalesMan/GreedyNoOptimo.VIS")				# Llegir les vistes
+vis.Load("TestSalesMan/Graf50_200_7C.VIS")				# Llegir les vistes
 t0 = time.time()                    					# temps inicial
 
 #Cerca cami que pasi per les visites

@@ -85,10 +85,10 @@ def SalesmanTrackBacktracking(g: gl.Graph, visits: list):
 # ============================ BACKTRACKING GREEDY ============================
 
 
-def floyd(g: gl.Graph):
+def floyd(g: gl.Graph, visits: gl.Visits):
     distances = {}
     paths = {}
-    for vertex in g.Vertices:
+    for vertex in visits.Vertices:
         dists_v, paths_v = dijkstra.Dijkstra(g, vertex)
         distances[vertex.Name] = dists_v
         paths[vertex.Name] = paths_v
@@ -106,14 +106,14 @@ def build_track(g: gl.Graph, path: list, best_paths: dict):
     return track
 
 def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
-    best_distances, best_paths_dict = floyd(g)
+    best_distances, best_paths_dict = floyd(g, visits)
     best_path = []
     best_distance = math.inf
 
     def visit(path, total_distance):
         nonlocal best_path, best_distance
         if len(path) == len(visits.Vertices):
-            if total_distance < best_distance:
+            if path[-1] == visits.Vertices[-1] and total_distance < best_distance:
                 best_distance = total_distance
                 best_path = path
         else:
@@ -122,7 +122,9 @@ def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
                     new_distance = total_distance + best_distances[path[-1].Name][vertex.Name]
                     visit(path + [vertex], new_distance)
 
-    visit([visits.Vertices[0]], 0)
+    start = visits.Vertices[0]
+    end = visits.Vertices[-1]
+    visit([start], 0)
     
     track = build_track(g, best_path, best_paths_dict)
     return track
