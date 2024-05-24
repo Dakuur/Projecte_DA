@@ -1,4 +1,3 @@
-
 import graph
 import math
 import sys
@@ -7,7 +6,8 @@ import dijkstra
 
 # SalesmanTrackGreedy ==========================================================
 
-def SalesmanTrackGreedy(g,visits):
+
+def SalesmanTrackGreedy(g, visits):
     result_track = graph.Track(g)
 
     v = visits.Vertices[0]
@@ -15,7 +15,7 @@ def SalesmanTrackGreedy(g,visits):
     candidatos = visits.Vertices[1:]
 
     while candidatos:
-       
+
         dijkstra.Dijkstra(g, v)
         v1 = min(candidatos, key=lambda vertex: vertex.DijkstraDistance)
 
@@ -29,7 +29,7 @@ def SalesmanTrackGreedy(g,visits):
 
         v = v1
 
-    dijkstra.Dijkstra(g, v) 
+    dijkstra.Dijkstra(g, v)
     final_vertex = visits.Vertices[-1]
     current_vertex = final_vertex
     while current_vertex != v:

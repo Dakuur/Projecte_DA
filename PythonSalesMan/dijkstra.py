@@ -5,11 +5,14 @@ import queue
 
 # Dijkstra =====================================================================
 
-def Dijkstra(g,start):
+
+def Dijkstra(g, start):
     for vertex in g.Vertices:
         vertex.DijkstraDistance = math.inf
         vertex.DijkstraVisit = False
-        vertex.set_previous_edge(None)  # Inicializa la arista previa en el camino más corto como None
+        vertex.set_previous_edge(
+            None
+        )  # Inicializa la arista previa en el camino más corto como None
 
     start.DijkstraDistance = 0
 
@@ -47,17 +50,18 @@ def Dijkstra(g,start):
         if vertex.DijkstraDistance == math.inf:
             vertex.DijkstraDistance = sys.float_info.max
         distances[vertex.Name] = vertex.DijkstraDistance
-    
+
     return distances, paths
-            
+
 
 # DijkstraQueue ================================================================
 
-def DijkstraQueue(g,start):
+
+def DijkstraQueue(g, start):
     for vertex in g.Vertices:
         vertex.DijkstraDistance = math.inf
         vertex.DijkstraVisit = False
-        vertex.set_previous_edge(None)  
+        vertex.set_previous_edge(None)
 
     start.DijkstraDistance = 0
 
@@ -80,10 +84,10 @@ def DijkstraQueue(g,start):
 
             if new_distance < neighbor_vertex.DijkstraDistance:
                 neighbor_vertex.DijkstraDistance = new_distance
-                neighbor_vertex.set_previous_edge(edge)  
+                neighbor_vertex.set_previous_edge(edge)
 
                 vertex_queue.put((new_distance, neighbor_vertex))
-    
+
     for vertex in g.Vertices:
         if vertex.DijkstraDistance == math.inf:
-            vertex.DijkstraDistance = 1.7976931348623157081e+308
+            vertex.DijkstraDistance = 1.7976931348623157081e308

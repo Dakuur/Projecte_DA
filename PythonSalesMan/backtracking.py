@@ -9,83 +9,93 @@ import copy
 # ============================= BACKTRACKING PUR =============================
 
 
-def next(
+def explore_next(
     current_v: gl.Vertex,
     current_e: gl.Edge,
     visits: list,
     g: gl.Graph,
     final: gl.Vertex,
 ):
+    global current_dist, current_path, optimal_dist, optimal_path
 
-    global path, best_path
-
-    previs = current_e.Destination.Prev
+    prev_list = current_e.Destination.Prev
 
     if (
-        current_v not in previs
-        and len(previs) < 2
-        and path[0] + current_e.Length < best_path[0]
+        current_v not in prev_list
+        and current_dist + current_e.Length < optimal_dist
+        and len(prev_list) <= 1
         and (current_e.Destination in visits or len(current_e.Destination.Edges) > 1)
     ):
 
-        previs.append(current_v)
-        path[0] += current_e.Length
-        path[1].append(current_e)
+        prev_list.append(current_v)
 
-        fet = False
-        try:
+        current_path.append(current_e)
+        current_dist += current_e.Length
+
+        done = False
+        if current_e.Destination in visits:
             visits.remove(current_e.Destination)
-            fet = True
-        except ValueError:
-            pass
+            done = True
 
-        backtrack_rec(g, visits, current_e.Destination, final)
+        # CRIDA A LA RECURSIVA
+        backtrack_recursive(g, visits, current_e.Destination, final)
 
-        if fet:
+        if done:
             visits.append(current_e.Destination)
-        path[0] -= current_e.Length
-        path[1].pop()
-        previs.pop()
+
+        # PAS ENRERE (LÍNIES 19-22)
+        prev_list.pop()
+
+        current_path.pop()
+        current_dist -= current_e.Length
 
 
-def backtrack_rec(g: gl.Graph, visits: list, current_v: gl.Vertex, final: gl.Vertex):
+def backtrack_recursive(
+    g: gl.Graph, visits: list, current_v: gl.Vertex, final: gl.Vertex
+):
+    global current_dist, current_path, optimal_dist, optimal_path
 
-    global path, best_path
+    if current_v == final and len(visits) == 0 and current_dist < optimal_dist:
 
-    if current_v == final and not visits and path[0] < best_path[0]:
-        best_path[0] = path[0]
-        best_path[1] = path[1].copy()
+        optimal_dist = current_dist
+        optimal_path = copy.copy(current_path)
+
     else:
         [
-            next(current_v, current_e, visits, g, final)
+            explore_next(current_v, current_e, visits, g, final)
             for current_e in sorted(current_v.Edges, key=lambda x: x.Length)
         ]
 
 
 def SalesmanTrackBacktracking(g: gl.Graph, visits: list):
+    global current_dist, current_path, optimal_dist, optimal_path
 
-    global path, best_path
-    best_path = [math.inf, []]
-    path = [0, []]
+    # INIT
+    optimal_dist = math.inf
+    optimal_path = []
+
+    current_dist = 0
+    current_path = []
 
     for vertex in g.Vertices:
         vertex.Prev = []
 
-    restants = visits.Vertices[1:]
-    primer = visits.Vertices[0]
-    ultim = visits.Vertices[-1]
+    v = visits.Vertices
 
-    backtrack_rec(g, restants, primer, ultim)
+    backtrack_recursive(g, v[1:], v[0], v[-1])
 
-    result = graph.Track(g)
-    result.Edges = best_path[1]
-    return result
+    result_graph = graph.Track(g)
+    result_graph.Edges = optimal_path
+
+    return result_graph
 
 
 # ============================ BACKTRACKING GREEDY ============================
 
 
-def floyd(g: gl.Graph, visits: gl.Visits):
+def floyd(
+    g: gl.Graph, visits: gl.Visits
+):  #  fem servir diccionaris en comptes de matriu
     distances = {}
     paths = {}
     for vertex in visits.Vertices:
@@ -97,13 +107,11 @@ def floyd(g: gl.Graph, visits: gl.Visits):
 
 def build_track(g: gl.Graph, path: list, best_paths: dict):
     track = graph.Track(g)
-
-    for i in range(0, len(path) - 1):  # tots menys ultim
-        start = path[i].Name
-        end = path[i + 1].Name
-        for e in best_paths[start][end]:
-            track.AddLast(e)
-
+    [
+        track.AddLast(e)
+        for i in range(len(path) - 1)
+        for e in best_paths[path[i].Name][path[i + 1].Name]
+    ]
     return track
 
 
@@ -114,13 +122,15 @@ def SalesmanTrackBacktrackingGreedy(g: gl.Graph, visits: gl.Visits):
 
     def visit(path, total_distance):
         nonlocal best_path, best_distance
-        if len(path) == len(visits.Vertices):
+        if len(path) >= len(visits.Vertices):
             if path[-1] == visits.Vertices[-1] and total_distance < best_distance:
                 best_distance = total_distance
                 best_path = path
         else:
             for vertex in visits.Vertices:
-                if vertex not in path:
+                if vertex not in path or (
+                    len(path) == len(visits.Vertices) - 1 and vertex == path[0]
+                ):  # permet cicles
                     new_distance = (
                         total_distance + best_distances[path[-1].Name][vertex.Name]
                     )

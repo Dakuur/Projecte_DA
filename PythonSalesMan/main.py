@@ -24,12 +24,14 @@ graph.NIUAlumne2 = "1666540"
 # VERIFICAR ALUMNES =============================================================
 
 graph.TestNIU(graph.NIUAlumne1)
-if graph.NIUAlumne2!="": graph.TestNIU(graph.NIUAlumne2)
+if graph.NIUAlumne2 != "":
+    graph.TestNIU(graph.NIUAlumne2)
 
 
 # EXECUCIO EN PROCESS DE CORRECCIO ==============================================
 
-if graph.CorrectionProcess(): sys.exit(0)
+if graph.CorrectionProcess():
+    sys.exit(0)
 
 # ==============================================================================
 # PROVES =======================================================================
@@ -47,19 +49,20 @@ print("temps: ",t1-t0)              					# imprimir el temps d'execució
 g.DisplayDistances()                					# Visualitza el graf i les distancies
 """
 
-g=graph.Graph()                     					# crear un graf
-g.Load("TestSalesMan/Graf50_200_7C.GR")  				# llegir el graf
-g.SetDistancesToEdgeLength()        					# Posar les longituts de les arestes a la distancia entre vertexs
-vis=graph.Visits(g);									# Crear visites
-vis.Load("TestSalesMan/Graf50_200_7C.VIS")				# Llegir les vistes
-t0 = time.time()                    					# temps inicial
+g = graph.Graph()  # crear un graf
+g.Load("TestSalesMan/Graf10_20_6.GR")  # llegir el graf
+g.SetDistancesToEdgeLength()  # Posar les longituts de les arestes a la distancia entre vertexs
+vis = graph.Visits(g)
+# Crear visites
+vis.Load("TestSalesMan/Graf10_20_6.VIS")  # Llegir les vistes
+t0 = time.time()  # temps inicial
 
-#Cerca cami que pasi per les visites
-#trk=greedy.SalesmanTrackGreedy(g,vis)                       #test greedy   
-#trk=backtracking.SalesmanTrackBacktracking(g,vis)          #test backtracking
-trk=backtracking.SalesmanTrackBacktrackingGreedy(g,vis)    #test backtracking-greedy
-#trk=branchAndBound.SalesmanTrackBranchAndBound2(g,vis)     #test branch&bound
+# Cerca cami que pasi per les visites
+# trk=greedy.SalesmanTrackGreedy(g,vis)                           #test greedy
+# trk=backtracking.SalesmanTrackBacktracking(g, vis)            #test backtracking
+# trk=backtracking.SalesmanTrackBacktrackingGreedy(g,vis)         #test backtracking-greedy
+trk = branchAndBound.SalesmanTrackBranchAndBound2(g, vis)  # test branch&bound
 
-t1 = time.time()                    					# Temps final
-print("temps: ",t1-t0)              					# imprimir el temps d'execució
-trk.Display(vis)                    					# Visualitza el track i les visites sobre el graf el graf
+t1 = time.time()  # Temps final
+print("temps: ", t1 - t0)  # imprimir el temps d'execució
+trk.Display(vis)  # Visualitza el track i les visites sobre el graf el graf
