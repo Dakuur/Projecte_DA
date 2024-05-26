@@ -68,7 +68,7 @@ def build_track(g: gl.Graph, path: list, best_paths: dict) -> gl.Track:
     """
     Builds the track (all vertices and edges) from the best paths between the vertices to be visited (ordered)
     :param g: Graph
-    :param path: list of vertices to be visited
+    :param path: list of Vertices to be visited
     :param best_paths: dict with the best paths between all vertices to be visited
     """
     track = graph.Track(g)
@@ -82,13 +82,19 @@ def build_track(g: gl.Graph, path: list, best_paths: dict) -> gl.Track:
 
 def SalesmanTrackBranchAndBound2(g: gl.Graph, visits: gl.Visits):
     dist_dict, paths_dict = distances_and_paths(g, visits)
+    
+    path = []
 
-    heuristics = min_max_levels(dist_dict, [], visits)
+    while len(path) < len(visits.Vertices) - 1:
+        heuristics = min_max_levels(dist_dict, path, visits)
+        best_v = min(heuristics, key=lambda x: (heuristics[x][0]+ heuristics[x][1])/2)
+        path.append(g.GetVertex(best_v))
+    path.append(visits.Vertices[-1])
 
-    # result = build_track(g, path, paths_dict)
-    # return result
+    result = build_track(g, path, paths_dict)
+    return result
 
-    raise Exception("Funció de l'apartat 2 no implementada")
+    #raise Exception("Funció de l'apartat 2 no implementada")
 
 
 # SalesmanTrackBranchAndBound3 ===================================================
