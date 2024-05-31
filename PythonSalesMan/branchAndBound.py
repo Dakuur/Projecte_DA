@@ -92,8 +92,10 @@ def SalesmanTrackBranchAndBound2(g: gl.Graph, visits: gl.Visits):
     path.append(visits.Vertices[-1])
 
     result = build_track(g, path, paths_dict)
-    return result
 
+    #result = build_track(g, visits.Vertices, paths_dict)
+    return result
+    
     #raise Exception("Funció de l'apartat 2 no implementada")
 
 
