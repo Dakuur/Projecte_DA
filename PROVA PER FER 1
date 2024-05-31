@@ -1,0 +1,73 @@
+class PathNode:
+    def __init__(self, path, length, lower_bound):
+        self.path = path
+        self.length = length
+        self.lower_bound = lower_bound
+
+    def __lt__(self, other):
+        return self.lower_bound < other.lower_bound
+
+def calculate_min_max_distances(graph, visits):
+    min_dists = {}
+    max_dists = {}
+
+    for v1 in visits:
+        min_dists[v1] = {}
+        max_dists[v1] = {}
+        for v2 in visits:
+            if v1 != v2:
+                distance = dijkstra.Dijkstra(graph, v1, v2)
+                min_dists[v1][v2] = distance
+                max_dists[v1][v2] = distance
+
+    return min_dists, max_dists
+
+def calculate_bounds(min_dists, visits):
+    min_bounds = {}
+    max_bounds = {}
+    for v in visits:
+        min_bounds[v] = sum(min(min_dists[v][u] for u in visits if u != v))
+        max_bounds[v] = sum(max(min_dists[v][u] for u in visits if u != v))
+    return min_bounds, max_bounds
+
+def SalesmanTrackBranchAndBound2(graph, visits):
+    min_dists, max_dists = calculate_min_max_distances(graph, visits)
+    min_bounds, max_bounds = calculate_bounds(min_dists, visits)
+    
+    start = visits.Vertices[0]
+    end = visits.Vertices[-1]
+    
+    initial_path = [start]
+    initial_length = 0
+    initial_bound = sum(min_bounds[v] for v in visits.Vertices[1:-1])
+    
+    pq = []
+    heapq.heappush(pq, PathNode(initial_path, initial_length, initial_bound))
+    best_path = None
+    best_length = float('inf')
+    
+    while pq:
+        node = heapq.heappop(pq)
+        
+        if node.lower_bound >= best_length:
+            continue
+        
+        current_vertex = node.path[-1]
+        for next_vertex in visits.Vertices:
+            if next_vertex not in node.path:
+                new_path = node.path + [next_vertex]
+                new_length = node.length + min_dists[current_vertex][next_vertex]
+                new_bound = new_length + sum(min_bounds[v] for v in visits.Vertices if v not in new_path)
+                
+                if new_path[-1] == end:
+                    if new_length < best_length:
+                        best_length = new_length
+                        best_path = new_path
+                elif new_bound < best_length:
+                    heapq.heappush(pq, PathNode(new_path, new_length, new_bound))
+    
+    track = Track(graph)
+    for i in range(len(best_path) - 1):
+        track.AddLast(graph.GetEdge(min_dists[best_path[i]][best_path[i+1]]))
+    
+    return track
