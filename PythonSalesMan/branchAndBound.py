@@ -26,16 +26,16 @@ def distances_and_paths(g: gl.Graph, visits: gl.Visits) -> Tuple[dict, dict]:
     """
     distances = {}
     paths = {}
-    for vertex in visits.Vertices[
-        :-1
-    ]:  # skip the last vertex (no exiting paths from it)
+    for vertex in visits.Vertices:  # skip the last vertex (no exiting paths from it)
         dists_v, paths_v = dijkstra.Dijkstra(g, vertex)
         distances[vertex.Name] = dists_v
         paths[vertex.Name] = paths_v
     return distances, paths
 
 
-def min_max_levels(dist_dict: dict, path: list, visits: gl.Visits) -> float:
+def min_max_levels(
+    dist_dict: dict, path: list, visits: gl.Visits
+) -> Dict[str, Tuple[float, float]]:
     """
     Returns the minimum level of the vertices in the path
     :param dist_dict: dict with the distances between all vertices
@@ -55,10 +55,8 @@ def min_max_levels(dist_dict: dict, path: list, visits: gl.Visits) -> float:
         for k, v in dist_dict.items():
             if i == k:
                 continue
-            if v[i] > maximum_d:
-                maximum_d = v[i]
-            if v[i] < minimum_d:
-                minimum_d = v[i]
+            maximum_d = max(maximum_d, v[i])
+            minimum_d = min(minimum_d, v[i])
         heuristics[i] = (minimum_d, maximum_d)
 
     return heuristics
@@ -82,21 +80,35 @@ def build_track(g: gl.Graph, path: list, best_paths: dict) -> gl.Track:
 
 def SalesmanTrackBranchAndBound2(g: gl.Graph, visits: gl.Visits):
     dist_dict, paths_dict = distances_and_paths(g, visits)
-    
-    path = []
+    best_path = []
+    best_distance = math.inf
 
-    while len(path) < len(visits.Vertices) - 1:
+    def branch_and_bound(path: List[gl.Vertex], total_distance: float):
+        nonlocal best_path, best_distance
+
+        if len(path) == len(visits.Vertices):
+            if path[-1] == visits.Vertices[-1] and total_distance < best_distance:
+                best_distance = total_distance
+                best_path = path
+            return
+
         heuristics = min_max_levels(dist_dict, path, visits)
-        best_v = min(heuristics, key=lambda x: (heuristics[x][0]+ heuristics[x][1])/2)
-        path.append(g.GetVertex(best_v))
-    path.append(visits.Vertices[-1])
+        
+        for vertex in visits.Vertices:
+            if vertex not in path:
+                new_distance = total_distance + dist_dict[path[-1].Name][vertex.Name]
+                
+                min_heuristic = heuristics[vertex.Name][0] if vertex.Name in heuristics else 0
+                if new_distance + min_heuristic >= best_distance:
+                    continue
 
-    result = build_track(g, path, paths_dict)
+                branch_and_bound(path + [vertex], new_distance)
 
-    #result = build_track(g, visits.Vertices, paths_dict)
-    return result
-    
-    #raise Exception("Funció de l'apartat 2 no implementada")
+    start = visits.Vertices[0]
+    branch_and_bound([start], 0)
+
+    track = build_track(g, best_path, paths_dict)
+    return track
 
 
 # SalesmanTrackBranchAndBound3 ===================================================
